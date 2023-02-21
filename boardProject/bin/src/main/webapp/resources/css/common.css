@@ -1,0 +1,116 @@
+@charset "UTF-8";
+
+
+/* for : userLogin.jsp */
+
+div .login-around{
+	border:1px solid black;
+	width:500px;
+	height:270px;
+	text-align: center;
+}
+
+div .loginDiv-group{
+    margin-bottom: 20px;
+}
+
+.login-btn{
+	width:70px;
+	height:30px;
+	font-size:13px;
+}
+
+
+
+
+
+
+/* for : userInsert.jsp */
+
+
+
+
+div .insert-around{
+	border:1px solid black;
+	width:500px;
+	height:130%;
+	text-align: center;
+	display:block;
+}
+
+
+
+
+/* userInsert.jsp의 이름, 아이디 각 항목에 대한 div */
+div .insertDiv-group{
+    margin-bottom: 20px;
+}
+
+
+
+
+/* check 실패 시 빨간색으로 표시 */
+.error{
+	color:red;
+}
+
+/* check 통과 시 파란색으로 표시 */
+.notError{
+	color:blue;
+}
+
+
+/* 공통 */
+
+.content{
+	width: 230px;
+	height: 20px;
+	font-size: 15px;
+	text-align:center;
+}
+
+
+
+
+
+/* for : common.jsp */
+
+.container{
+	margin-left:15px;
+}
+
+ul{
+	 margin-left: 10px;
+	 padding-inline-start: 0px;
+}
+
+li .yeonghun{
+	color: #808080;
+	font-weight: bold;
+	font-size:1em;
+	background-color: #fbfbfb;
+    padding-left: 0px;
+	margin-left: 10px;
+}
+
+ul.nav li.nav{
+	display:inline-block;
+	width:120px;
+	height:25px;
+	margin:auto;
+	padding:25px 0;
+	border:1px solid black;
+	text-align:center;
+	vertical-align: middle;
+}
+
+.nav:hover{
+	color:light-grey;
+}
+
+a{
+	text-decoration: none;
+}
+
+
+

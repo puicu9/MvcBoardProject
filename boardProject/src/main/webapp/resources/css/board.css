@@ -1,0 +1,113 @@
+@charset "UTF-8";
+
+/* reply 달리는 부분 */
+
+ul.replied-group{
+	margin:10px;
+	text-align: left;
+}
+
+li.each-reply{
+	text-align: left;
+}
+
+span.span-replied{
+	margin:30px;
+}
+
+p.p-replied{
+	margin-left: 30px;
+}
+
+div.wide-class{
+	display: none;
+}
+
+
+
+
+/* boardDetail.jsp*/
+
+div.top, div.insert-around top{
+	margin-top: 20px;
+	height:100%;
+}
+
+table.table-reply{
+	width:100%;
+	margin-top: 20px;
+}
+
+tr.tr-reply{
+	width:100%;
+}
+
+th.th-reply-writer, td.td-reply-writer{
+	width:100px;
+}
+
+input#reply_content{
+	width: 350px;
+	height:30px;
+}
+
+.center{
+	text-align: center;
+}
+
+div .file-group{
+	border:1px solid black ;
+}
+
+/* boardInsert.jsp */
+
+.title{
+	width: 340px;
+	height: 20px;
+	font-size: 15px;
+}
+
+#plusFile{
+	cursor: pointer;
+}
+
+
+/* boardList.jsp */
+
+ul.paging li.paging{
+	list-style: none ;
+	float: left ;
+	padding:6px ;
+	display:inline-block;
+}
+
+
+table.boardList, th.number, th.title, th.name, th.inputdate,
+td.number, td.title, td.name, td.inputdate{
+	border: 1px solid;
+	text-align: center;
+	padding:5px;
+}
+
+th .th{
+	font-size: large;
+	font-weight: bold;
+	height:30px;
+}
+
+
+
+
+th.number td.number{
+	width:50px;
+}
+
+th.title td.title{
+	width:200px;
+}
+
+#write-button{
+	padding:15px 15px;
+	font-size: 15px;
+	margin:8px 4px;
+}

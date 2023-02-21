@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="yeonghun.repository.ReplyRepository">
+	
+	<!-- 현재까지 등록된 댓글 갯수 확인 -->
+	<select id="getReplyCount" resultType="int">
+		SELECT count(*)
+		FROM yeonghun.REPLYS
+	</select>
+
+	<!-- 댓글 등록 -->
+    <insert id="insertReplyByDto" parameterType="hashMap"
+		useGeneratedKeys="true">
+		insert into yeonghun.REPLYS( 
+							BOARD_NUMBER,
+							USER_NUMBER,
+							REPLY_CONTENT,
+							REPLY_INPUTDATE,
+							REPLY_GROUP,
+							REPLY_ORDER,
+							REPLY_DEPTH,
+							REPLY_STATE
+							)
+		values(#{board_number}, 
+				#{user_number}, 
+				#{reply_content}, 
+				now(), 
+				#{reply_group} +1, 
+				0, 
+				0, 
+				'Y')
+	</insert>
+    
+   	<!-- 댓글 list -->
+	<select id="selectReplyByNumber" resultType="yeonghun.entity.ReplyEntity" parameterType="int">
+		SELECT r.REPLY_NUMBER, r.BOARD_NUMBER, u.USER_NAME, r.REPLY_CONTENT, r.REPLY_INPUTDATE, r.REPLY_DEPTH
+		FROM yeonghun.REPLYS r,
+		yeonghun.USERS u
+		WHERE r.USER_NUMBER = u.USER_NUMBER 
+		AND BOARD_NUMBER = #{board_number}
+		AND REPLY_STATE = 'Y'
+		ORDER BY r.REPLY_GROUP DESC, r.REPLY_ORDER ASC
+	</select>
+	
+   	<!-- 대댓글 group, order, depth 구하기 -->
+	<!-- <select id="selectReplyByDto" resultType="HashMap" parameterType="int">
+		SELECT REPLY_GROUP, count(*) as REPLY_ORDER, REPLY_DEPTH
+		FROM yeonghun.REPLYS
+		WHERE REPLY_GROUP = #{reply_second_reply_number}
+	</select> -->
+<!--    	<resultMap type="map" id="selectMap">
+      	<result column="REPLY_GROUP" property="REPLY_GROUP"/>
+      	<result column="REPLY_ORDER" property="REPLY_ORDER"/>
+      	<result column="REPLY_DEPTH" property="REPLY_DEPTH"/>
+    </resultMap> -->
+		
+	
+   	<!-- 대댓글 group Number 구하기 -->
+	<select id="selectGroupByNumber" resultType="int" parameterType="int">
+		SELECT REPLY_GROUP
+		FROM yeonghun.REPLYS
+		WHERE REPLY_NUMBER = #{reply_second_reply_number};
+	</select>
+	
+   	<!-- 대댓글 order Number 구하기 -->
+	<select id="selectOrderByNumber" resultType="int" parameterType="int">
+		SELECT MAX(REPLY_ORDER)
+		FROM yeonghun.REPLYS
+		WHERE REPLY_GROUP = #{reply_second_group}
+	</select>
+	
+   	<!-- 대댓글 depth Number 구하기 -->
+	<select id="selectDepthByNumber" resultType="int" parameterType="int">
+		SELECT REPLY_DEPTH
+		FROM yeonghun.REPLYS
+		WHERE REPLY_NUMBER = #{reply_second_reply_number};
+	</select>
+	
+
+	
+	<!-- 답글 댓글 등록 -->
+    <insert id="insertReplySecondByDto" parameterType="hashMap"
+		useGeneratedKeys="true">
+		insert into yeonghun.REPLYS( 
+							BOARD_NUMBER,
+							USER_NUMBER,
+							REPLY_CONTENT,
+							REPLY_INPUTDATE,
+							REPLY_GROUP,
+							REPLY_ORDER,
+							REPLY_DEPTH,
+							REPLY_STATE
+							)
+		values(#{board_number}, 
+				#{user_number}, 
+				#{reply_content}, 
+				now(), 
+				#{reply_group}, 
+				#{reply_order}, 
+				#{reply_depth}, 
+				'Y')
+	</insert>
+	
+	
+    <!-- 대댓글 수정-->
+    <update id="updateReplyByNumber" parameterType="yeonghun.dto.BoardUpdateDto">
+    	UPDATE yeonghun.REPLYS SET
+		REPLY_CONTENT = #{reply_second_update_content}
+		WHERE REPLY_NUMBER = #{reply_second_update_reply_number}
+		AND REPLY_STATE = 'Y'
+    </update>
+	
+   	<!-- 댓글 삭제 전, 댓글에 관한 정보 -->
+	<select id="selectReplyInfoByNumber" resultType="hashMap" parameterType="int">
+		SELECT *
+		FROM yeonghun.REPLYS
+		WHERE REPLY_NUMBER = #{reply_number}
+	</select>
+		
+	<!-- 댓글 삭제 Y to N -->
+	<update id="updateReplyByMap" parameterType="hashMap">
+		UPDATE yeonghun.REPLYS SET 
+		REPLY_CONTENT = '작성자에 의해 삭제되었습니다.',
+		REPLY_REMARK = (CONCAT(#{reply_content}, '의 내용이 ',DATE_FORMAT(NOW(), '%Y-%m-%d %T'), '에 삭제되었습니다.')) 
+		WHERE REPLY_NUMBER = #{reply_number}
+	</update>
+	
+
+	
+	
+	
+	
+	
+    
+</mapper>

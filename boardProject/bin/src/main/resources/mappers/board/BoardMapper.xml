@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="yeonghun.repository.BoardRepository">
+	
+	<!-- 게시물 등록 -->
+	<insert id="insertBoard" parameterType="yeonghun.dto.BoardInsertDto"
+		useGeneratedKeys="true">
+		insert into BOARDS( 
+							USER_NUMBER, 
+							BOARD_TITLE, 
+							BOARD_CONTENT, 
+							BOARD_INPUTDATE, 
+							BOARD_STATE)
+		values(#{user_number}, #{board_title}, #{board_content}, now() , 'Y')
+	</insert>
+	
+	<!-- 등록된 게시물 조회 -->
+	<select id="selectBoardListCount" resultType="int">
+		SELECT count(*) 
+		FROM yeonghun.BOARDS
+	</select>
+
+	<!-- 파일 업로드 -->
+	<insert id="insertFile" parameterType="hashmap"
+		useGeneratedKeys="true">
+		insert into FILES( 
+							USER_NUMBER,
+							BOARD_NUMBER,
+							FILE_ORDER,
+							FILE_INPUTDATE,
+							FILE_STATE,
+							FILE_PATH,
+							FILE_REALNAME,
+							FILE_SAVENAME,
+							FILE_SIZE
+							)
+		values(#{user_number}, #{board_number}, #{file_order}, now(), 'Y', #{file_path},
+		#{file_realname}, #{file_savename}, #{file_size})
+	</insert>
+	
+	
+    <!-- 게시판 List 조회 -->
+	<select id="selectBoardListOrderByNumberDesc" resultType="yeonghun.entity.BoardEntity" 
+		parameterType="yeonghun.util.Criteria">
+		SELECT b.BOARD_NUMBER, b.USER_NUMBER, u.USER_NAME, b.BOARD_TITLE, b.BOARD_INPUTDATE
+		FROM (
+			SELECT BOARD_NUMBER, USER_NUMBER, BOARD_TITLE, BOARD_INPUTDATE, BOARD_STATE,
+			ROW_NUMBER() OVER(ORDER BY BOARD_NUMBER DESC) AS ROWNUM
+			FROM yeonghun.BOARDS
+		    ) b 
+		INNER JOIN yeonghun.USERS u
+		on (b.USER_NUMBER = u.USER_NUMBER)
+		WHERE b.BOARD_STATE = 'Y'
+		AND ROWNUM BETWEEN #{rowStart} and #{rowEnd}
+		ORDER BY b.BOARD_NUMBER DESC
+		
+		<!-- SELECT b.BOARD_NUMBER, u.USER_NUMBER, u.USER_NAME, b.BOARD_TITLE, b.BOARD_INPUTDATE,
+		ROW_NUMBER() OVER(ORDER BY b.BOARD_NUMBER DESC) AS ROWNUM
+		FROM yeonghun.BOARDS b
+		INNER JOIN yeonghun.USERS u
+		on b.USER_NUMBER = u.USER_NUMBER
+		WHERE b.BOARD_STATE = 'Y'
+		ORDER BY b.BOARD_NUMBER DESC
+		LIMIT #{rowStart}, 3 -->
+	</select>
+
+    <!-- 게시판 상세 조회 -->
+	<select id="selectBoardDetailByNumber" resultType="yeonghun.entity.BoardEntity" parameterType="int">
+		SELECT b.BOARD_NUMBER, u.USER_NUMBER, u.USER_NAME, u.USER_ID, b.BOARD_TITLE, b.BOARD_CONTENT, b.BOARD_INPUTDATE
+		FROM yeonghun.BOARDS b
+		INNER JOIN yeonghun.USERS u
+		on b.USER_NUMBER = u.USER_NUMBER
+		WHERE b.BOARD_STATE = 'Y'
+		AND b.BOARD_NUMBER = #{board_number}
+		ORDER BY b.BOARD_NUMBER DESC
+	</select>    
+    
+    <!-- 게시물 상세보기, 파일 업로드 리스트 -->
+    <!-- file_size를 1024로 나눈 이유 :  KB 단위로 보여주기 위해 -->
+   	<select id="selectFileByNumber" resultType="hashMap" parameterType="int">
+		SELECT FILE_NUMBER,
+				FILE_REALNAME, 
+				ROUND(FILE_SIZE/1024, 1) AS FILE_SIZE
+		FROM yeonghun.FILES
+		WHERE BOARD_NUMBER = #{board_number}
+		AND FILE_STATE = 'Y'
+		ORDER BY FILE_ORDER ASC
+	</select> 
+	
+	<!-- 게시물 상세보기, 파일 다운로드 -->
+   	<select id="selectFileByNumberDownload" resultType="hashMap" parameterType="hashMap">
+		SELECT FILE_SAVENAME,
+				FILE_REALNAME
+		FROM yeonghun.FILES
+		WHERE FILE_NUMBER = #{file_number}
+		AND FILE_STATE = 'Y'
+	</select> 
+    
+    <!-- 게시물 수정, 글제목, 글내용 수정-->
+    <update id="updateBoardByDto" parameterType="yeonghun.dto.BoardUpdateDto">
+    	UPDATE yeonghun.BOARDS SET
+		BOARD_TITLE = #{board_title},
+		BOARD_CONTENT = #{board_content}
+		WHERE BOARD_NUMBER = #{board_number}
+		AND USER_NUMBER = #{user_number}
+		AND BOARD_STATE = 'Y'
+    </update>
+    
+        <!-- 게시물 수정, 글제목, 글내용 수정-->
+    <update id="updateFileByNumber" parameterType="hashMap">
+    	UPDATE yeonghun.FILES SET
+		FILE_STATE = 'N'
+		WHERE FILE_NUMBER = #{file_number}
+    </update>
+    
+    <!-- file_order 구하기 -->
+    <select id="getFileOrderByNumber" resultType="int" parameterType="int">
+		SELECT count(*) from yeonghun.FILES
+		WHERE BOARD_NUMBER = #{board_number}
+	</select>   
+    
+    <!-- 게시물 삭제, BOARD Y -> N -->
+     <update id="deleteBoardByNumber" parameterType="int">
+    	UPDATE yeonghun.BOARDS SET
+		BOARD_STATE = 'N',
+			BOARD_REMARK = (CONCAT(BOARD_NUMBER, '번 글은 ', DATE_FORMAT(NOW(), '%Y-%m-%d %T'), '에 삭제되었습니다.'))
+		WHERE BOARD_NUMBER = #{board_number}
+    </update>
+    
+     <!-- 파일 삭제, FILE Y -> N -->
+     <update id="deleteFileByNumber" parameterType="int">
+    	UPDATE yeonghun.FILES SET
+		FILE_STATE = 'N',
+			FILE_REMARK = (CONCAT(FILE_NUMBER, '번 파일은 ', DATE_FORMAT(NOW(), '%Y-%m-%d %T'), '에 삭제되었습니다.'))
+		WHERE BOARD_NUMBER = #{board_number}
+    </update>
+    
+    <!-- <![CDATA[  ]]> 이렇게 선언하고 안에 문자열을 채워 넣으면 , 
+  	[ ] 안에 있는 문장은 파싱되지 않고 그대로 문자열로 출력 -->
+    
+    <!-- paging list 전체 열 갯수 -->
+    <select id="listCount" resultType="int">
+  		SELECT count(BOARD_NUMBER)
+  		FROM yeonghun.BOARDS
+  		WHERE BOARD_NUMBER > 0
+    </select>
+    
+    
+    
+</mapper>

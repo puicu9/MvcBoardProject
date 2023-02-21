@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="yeonghun.repository.UserRepository">
+	
+	<!-- 회원가입 -->
+	<insert id="insertUser" parameterType="yeonghun.dto.UserInsertDto"
+		useGeneratedKeys="true">
+		insert into USERS(USER_ID, USER_PASSWORD, USER_NAME, USER_EMAIL, USER_CONTACT,
+			USER_ZIPCODE, USER_ROADNAME, USER_INPUTDATE, USER_STATE, USER_ADDRESS)
+		values(#{user_id}, #{user_password}, #{user_name}, #{user_email},
+			 #{user_contact}, #{user_zipcode}, #{user_roadname}, now(), 'Y', #{user_address})
+	</insert>
+	
+	<!-- 회원가입, 아이디 중복검사 -->
+	<select id="selectUserById" parameterType="String" resultType="int">
+		SELECT count(*) FROM yeonghun.USERS
+		WHERE USER_ID = #{user_id}
+	</select>
+	
+	<!-- 로그인 -->
+	<select id="selectUserByIdPw" parameterType="yeonghun.dto.UserLoginDto"
+		resultType="yeonghun.entity.UserEntity">
+		SELECT * FROM yeonghun.USERS
+		WHERE USER_ID = #{user_id}
+			AND USER_STATE = 'Y'
+	</select>
+	
+	<!-- 회원정보 수정 -->
+	<update id="updateUserByNumber" parameterType="yeonghun.entity.UserEntity">
+	
+		UPDATE yeonghun.USERS
+		SET USER_NAME = #{user_name},
+			USER_EMAIL = #{user_email},
+			USER_CONTACT = #{user_contact},
+			USER_ZIPCODE = #{user_zipcode},
+			USER_ROADNAME = #{user_roadname},
+			USER_ADDRESS = #{user_address}
+		WHERE USER_NUMBER = #{user_number}
+	
+	</update>
+	
+	<!-- 회원정보 수정 후 보여줄 회원정보  -->
+	<select id="selectUserByNumber" parameterType="int" resultType="yeonghun.entity.UserEntity">
+		SELECT * FROM yeonghun.USERS
+		WHERE USER_NUMBER = #{user_number}
+			AND USER_STATE = 'Y'
+	</select>
+	
+	<!-- 회원탈퇴 Y to N -->
+	<update id="deleteUpdateUserByNumber" parameterType="int">
+	
+		UPDATE yeonghun.USERS
+		SET USER_STATE = 'N',
+			USER_REMARK = (CONCAT(USER_ID, ' 님은 ', DATE_FORMAT(NOW(), '%Y-%m-%d %T'), '에 탈퇴하셨습니다.')) 
+		WHERE USER_NUMBER = #{user_number}
+	
+	</update>
+
+    
+</mapper>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration 
+	PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-config.dtd">
+	<configuration>
+	
+		<!-- 
+		mybatis에서 제공하는 typeAlias를 이용하면
+		 resultType와 parameterType을 simple하게 작성할 수 있다.
+		 아래는 예시
+		  -->
+		<!-- <typeAliases>
+			<typeAlias type="yeonghun.test.TestDao" alias="TestDao"/>
+		</typeAliases> -->
+
+	</configuration>

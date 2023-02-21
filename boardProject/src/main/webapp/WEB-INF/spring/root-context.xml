@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- Root Context: defines shared resources visible to all other web components -->
+
+	<!-- DB POOL Setting Start -->
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource">
+		<constructor-arg ref="hikariConfig" />
+	</bean>
+
+	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+		<property name="idleTimeout" value="30000" />
+		<property name="connectionTimeout" value="3000" />
+		<property name="maxLifetime" value="400000" />
+		<property name="maximumPoolSize" value="300" />
+		<property name="minimumIdle" value="20" />
+		<property name="driverClassName"
+			value="com.mysql.jdbc.Driver" />
+		<!-- radcns -->
+				<!-- <property name="jdbcUrl"
+			value="jdbc:mysql://leadon-dev.cmceqzpdzjrg.ap-northeast-2.rds.amazonaws.com:3306/yeonghun?characterEncoding=UTF-8&amp;serverTimezone=Asia/Seoul" />
+		<property name="username" value="yeonghun" />
+		<property name="password" value="^&amp;flemdhs@Wkd!" /> -->
+		
+		<!-- local mysql 연동  -->
+		<!-- <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/yeonghun?characterEncoding=UTF-8"/> -->
+		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/yeonghun?serverTimezone=UTC"/>
+		<property name="username" value="root"/>
+		<property name="password" value="mysql"/>
+		
+	</bean>
+
+	<!-- mybatis SqlSessionFactoryBean -->
+	<bean id="sqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation"
+			value="classpath:/mybatis-config.xml" />
+		<property name="mapperLocations"
+			value="classpath*:mappers/**/*Mapper.xml" />
+	</bean>
+
+	<!-- mybatis Template destroy-method속성 : Spring Bean소멸전 호출되는 메소드를 속성값으로 
+		설정 clearCache : sqlSession관련 JDBC 객체를 소멸시키는 메소드(= sqlSession.close() ) -->
+	<bean id="sqlSession"
+		class="org.mybatis.spring.SqlSessionTemplate"
+		destroy-method="clearCache">
+		<constructor-arg name="sqlSessionFactory"
+			ref="sqlSessionFactory" />
+	</bean>
+	<!-- DB POOL Setting END -->
+
+	<!-- 파일 업로드 경로를 설정 window -->
+	<!-- <bean id="uploadPath" class="java.lang.String">
+		<constructor-arg
+			value="D:\WEB_ROOT\yeonghun\src\main\webapp\resources\upload">
+		</constructor-arg>
+	</bean> -->
+	
+	<!-- 파일 업로드 경로를 설정 mac -->
+	<bean id="uploadPath" class="java.lang.String">		
+		<constructor-arg
+			value="/Users/kimyeonghun/Desktop/yeonghun/boardProject/src/main/resources/upload">
+		</constructor-arg>
+		
+	</bean>
+
+</beans> 

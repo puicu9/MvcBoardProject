@@ -1,0 +1,117 @@
+create database radcns;
+
+-- auto_increment 초기화
+ALTER TABLE yeonghun.USERS AUTO_INCREMENT = 1;
+ALTER TABLE yeonghun.BOARDS AUTO_INCREMENT = 1;
+ALTER TABLE yeonghun.FILES AUTO_INCREMENT = 1;
+ALTER TABLE yeonghun.REPLYS AUTO_INCREMENT = 1;
+
+
+
+-- 회원 테이블
+-- 회원 테이블 삭제
+drop table yeonghun.USERS;
+
+-- 회원 테이블 생성
+create table yeonghun.USERS(
+	USER_NUMBER int unsigned auto_increment primary key, -- 회원 고유번호(PK)
+	USER_ID varchar(128) not null unique, 				-- 회원 아이디
+	USER_PASSWORD varchar(128) not null, 				-- 회원 비밀번호
+	USER_NAME varchar(128) not null, 					-- 회원 이름
+    USER_EMAIL varchar(128) not null, 					-- 회원 이메일
+    USER_CONTACT varchar(128) not null,					-- 회원 연락처
+    USER_ZIPCODE varchar(128) not null, 				-- 회원 우편번호
+    USER_ROADNAME varchar(255) not null, 				-- 회원 도로명 주소
+	USER_INPUTDATE datetime not null default now(), 	-- 회원 가입일자
+	USER_STATE char(1) not null default 'Y',			-- 회원 계정 사용상태
+	USER_ADDRESS varchar(255),							-- 회원 상세주소
+	USER_REMARK varchar(100) 							-- 회원 비고
+);
+
+-- 게시판 테이블
+-- 게시판 테이블 삭제
+drop table yeonghun.BOARDS;
+
+-- 게시판 테이블 생성
+create table yeonghun.BOARDS(
+	BOARD_NUMBER int unsigned auto_increment primary key, 	-- 게시판 고유번호(PK)
+	USER_NUMBER int unsigned not null, 						-- 회원 고유번호(FK) : references USERS(USER_NUMBER)
+	BOARD_TITLE varchar(255) not null, 						-- 게시판 제목
+	BOARD_CONTENT text not null, 							-- 게시판 내용
+	BOARD_INPUTDATE datetime not null default now(), 		-- 게시판 작성일자
+	BOARD_STATE char(1) not null default 'Y', 				-- 게시판 사용상태
+	BOARD_REMARK varchar(100), 								-- 게시판 비고
+    
+    constraint foreign key(USER_NUMBER) 					-- 회원 고유번호(FK) : references USERS(USER_NUMBER)
+    references USERS(USER_NUMBER)
+);
+
+
+-- 댓글 테이블
+-- 댓글 테이블 삭제
+drop table yeonghun.REPLYS;
+
+-- 댓글 테이블 생성
+create table yeonghun.REPLYS(
+	REPLY_NUMBER int unsigned auto_increment primary key, -- 댓글 고유번호(PK)
+	BOARD_NUMBER int unsigned not null, 				-- 게시판 고유번호(FK) : references BOARDS(BOARD_NUMBER)
+	USER_NUMBER int unsigned not null,					-- 회원 고유번호(FK) : references USERS(USER_NUMBER)
+	REPLY_CONTENT text not null, 						-- 댓글 내용
+	REPLY_INPUTDATE datetime not null default now(), 	-- 댓글 작성일자
+	REPLY_GROUP int unsigned not null default 0, 		-- 댓글 그룹번호
+	REPLY_ORDER int unsigned not null default 0, 		-- 댓글 순서번호
+	REPLY_DEPTH int unsigned not null default 0, 		-- 댓글 깊이
+	REPLY_STATE char(1) not null default 'Y',			-- 댓글 사용상태
+	REPLY_REMARK varchar(100), 							-- 댓글 비고
+    
+    constraint foreign key(BOARD_NUMBER) 				-- 게시판 고유번호(FK) : references BOARDS(BOARD_NUMBER)
+    references BOARDS(BOARD_NUMBER),
+    
+    constraint foreign key(USER_NUMBER) 				-- 회원 고유번호(FK) : references USERS(USER_NUMBER)
+    references USERS(USER_NUMBER)
+);
+
+drop table yeonghun.FILES;
+-- 파일 테이블 생성
+create table yeonghun.FILES(
+	FILE_NUMBER int unsigned auto_increment primary key, -- 파일 고유번호(PK)
+	USER_NUMBER int unsigned not null,    				 -- 회원 고유번호(FK) : references USERS(USER_NUMBER)
+    BOARD_NUMBER int unsigned not null, 				-- 게시판 고유번호(FK) : references BOARDS(BOARD_NUMBER)
+	FILE_ORDER int unsigned not null default 0,
+    FILE_INPUTDATE datetime not null default now(),
+    FILE_STATE char(1) not null default 'Y',
+    FILE_PATH varchar(255),
+    FILE_REALNAME varchar(255),
+    FILE_SAVENAME varchar(255),
+    FILE_SIZE int,
+    FILE_REMARK varchar(100),
+    
+    
+    constraint foreign key(BOARD_NUMBER) 				-- 게시판 고유번호(FK) : references BOARDS(BOARD_NUMBER)
+    references BOARDS(BOARD_NUMBER),
+    
+    constraint foreign key(USER_NUMBER) 				-- 회원 고유번호(FK) : references USERS(USER_NUMBER)
+    references USERS(USER_NUMBER)
+);
+
+
+commit;
+
+
+select * from yeonghun.USERS;
+
+delete from yeonghun.USERS;
+
+-- 현 시간 select 구문
+select DATE_FORMAT(now(), '%Y-%m-%d %T');
+
+
+UPDATE yeonghun.USERS
+SET USER_STATE = 'N',
+	USER_REMARK = (concat(USER_ID,' 님 ', DATE_FORMAT(now(), '%Y-%m-%d'), '에 탈퇴하셨습니다'))
+WHERE USER_NUMBER = 3;
+
+update yeonghun.USERS set USER_STATE = 'Y'
+where USER_STATE = 'N';
+
+
